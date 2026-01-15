@@ -19,7 +19,7 @@ unless File.exist?(file_name)
   exit 1
 end
 
-sound_lib = File.expand_path('../sound_bank', script_dir)
+sound_lib = File.expand_path('sound_bank', script_dir)
 
 def parse_melody(file_name)
   note_time_arr = []
