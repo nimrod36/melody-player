@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melody Player</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 Melody Player</h1>
+            <p>Play, control, and transform melodies</p>
+        </header>
+
+        <main>
+            <section class="melodies">
+                <h2>Available Melodies</h2>
+                <div id="melody-list" class="melody-grid">
+                    <p>Loading melodies...</p>
+                </div>
+            </section>
+
+            <section class="controls">
+                <h2>Playback Controls</h2>
+                <div class="control-group">
+                    <label for="loop-count">Loops:</label>
+                    <input type="number" id="loop-count" min="1" max="10" value="1">
+                </div>
+
+                <div class="control-group">
+                    <label for="speed">Speed: <span id="speed-value">1.0x</span></label>
+                    <input type="range" id="speed" min="0.5" max="2.0" step="0.1" value="1.0">
+                </div>
+
+                <div class="control-group">
+                    <label for="transpose">Transpose: <span id="transpose-value">0</span> semitones</label>
+                    <input type="range" id="transpose" min="-12" max="12" step="1" value="0">
+                </div>
+
+                <div class="button-group">
+                    <button id="stop-btn" disabled>Stop</button>
+                </div>
+            </section>
+
+            <section class="info">
+                <h2>Notes</h2>
+                <div id="notes-list" class="notes-grid">
+                    <p>Loading notes...</p>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Created with Ruby & Sinatra</p>
+        </footer>
+    </div>
+
+    <script src="/js/app.js"></script>
+</body>
+</html>
