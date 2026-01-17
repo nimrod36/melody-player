@@ -5,7 +5,7 @@ A modular melody player with CLI and web interface built in Ruby.
 ## Project Structure
 
 ```
-joytunes/
+
 ├── lib/
 │   ├── melody.rb           # Melody parsing and manipulation
 │   ├── melody_player.rb    # Playback engine
