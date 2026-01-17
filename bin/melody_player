@@ -1,0 +1,105 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require_relative '../lib/melody'
+require_relative '../lib/melody_player'
+require_relative '../lib/sound_bank'
+
+options = {
+  loop: 1,
+  speed: 1.0,
+  transpose: 0,
+  list: false
+}
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: melody_player [options] <MELODY_FILE>"
+
+  opts.on('-l', '--list', 'List available notes in sound bank') do
+    options[:list] = true
+  end
+
+  opts.on('--loop N', Integer, 'Play melody N times (default: 1)') do |n|
+    options[:loop] = n
+  end
+
+  opts.on('--speed FACTOR', Float, 'Play at speed (1.0=normal, 2.0=double, 0.5=half)') do |f|
+    options[:speed] = f
+  end
+
+  opts.on('--transpose SEMITONES', Integer, 'Transpose by semitones (positive=up, negative=down)') do |s|
+    options[:transpose] = s
+  end
+
+  opts.on('-h', '--help', 'Show this help message') do
+    puts opts
+    exit 0
+  end
+end
+
+parser.parse!
+
+script_dir = File.dirname(File.expand_path(__FILE__))
+melodies_dir = File.join(script_dir, '..', 'melodies')
+sound_lib = File.join(melodies_dir, 'sound_bank')
+
+sound_bank = SoundBank.new(sound_lib)
+
+if options[:list]
+  notes = sound_bank.available_notes
+  if notes.empty?
+    puts "No sound files found in #{sound_lib}"
+  else
+    puts "Available notes in sound bank:"
+    notes.each_with_index { |note, i| puts "  #{i + 1}. #{note}" }
+  end
+  exit 0
+end
+
+if ARGV.empty?
+  puts parser
+  exit 1
+end
+
+file_name = if File.exist?(ARGV[0])
+              ARGV[0]
+            else
+              File.join(melodies_dir, ARGV[0])
+            end
+
+unless File.exist?(file_name)
+  STDERR.puts "Error: Melody file not found: #{file_name}"
+  exit 1
+end
+
+melody = Melody.new(file_name)
+unless melody.valid?
+  STDERR.puts "Error: No notes parsed from #{file_name}"
+  exit 1
+end
+
+puts "Playing: #{File.basename(file_name)}"
+puts "  Duration: #{melody.duration.round(2)}s"
+puts "  Notes: #{melody.notes.length}"
+puts "  Speed: #{options[:speed]}x" if options[:speed] != 1.0
+puts "  Transpose: #{options[:transpose]} semitones" if options[:transpose] != 0
+puts "  Loops: #{options[:loop]}" if options[:loop] > 1
+
+# Apply transformations
+notes = melody.notes
+notes = Melody.new(file_name).transpose(options[:transpose]) if options[:transpose] != 0
+
+if options[:speed] != 1.0
+  if options[:speed] > 1.0
+    notes = Melody.new(file_name).speed_up(options[:speed])
+  else
+    notes = Melody.new(file_name).speed_down(1.0 / options[:speed])
+  end
+end
+
+melody.instance_variable_set(:@notes, notes)
+
+player = MelodyPlayer.new(sound_bank)
+player.play(melody, loop_count: options[:loop])
+
+puts "Done!"
